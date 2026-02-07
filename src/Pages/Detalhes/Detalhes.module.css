@@ -1,0 +1,21 @@
+.maincontainer {
+    gap: 200px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 100%;
+    margin-left: 35px;
+}
+
+.header {
+    display: flex;
+    justify-content:left;
+    align-items: center;
+    gap: 20px;
+    
+}
+
+.dashboard {
+    display: flex;
+    margin-top: 20px;
+    gap: 20px;
+}

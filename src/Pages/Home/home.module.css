@@ -1,0 +1,31 @@
+.mainContainer {
+    display: block;
+    gap: 200px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: auto;
+    margin-left: 35px;
+}
+
+.logo {
+    font-size: 22px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.dashboard {
+    display: flex;
+    margin-top: 20px;
+    gap: 20px;
+    
+}
+
+.card {
+    justify-content: left;
+    padding: 20px;
+
+    border-radius: 8px;
+}

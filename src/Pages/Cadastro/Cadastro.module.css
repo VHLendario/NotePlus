@@ -6,6 +6,7 @@ body {
   color:#121212;
   font-size: 50px;
   font-weight:500;
+  
 }
 
 .goo {
@@ -36,8 +37,7 @@ body {
   padding: 10px 0px;
 }
 
-.entrar{
-  margin-top: 20px;
+.criar{
   width: 100%;
   background-color: #F15D41;
   border: 2px outset #121212

@@ -1,0 +1,7 @@
+.Resultado {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+    justify-content: center;
+}

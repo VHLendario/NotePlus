@@ -9,8 +9,9 @@ import {
   Anchor,
   Text,
 } from '@mantine/core';
-import classes from './Login.module.css';
+import classes from './login.module.css';
 import goo from '../../assets/img01.png'
+import { NavLink } from "react-router-dom";
 
 export const Login = () => {
   return (
@@ -30,12 +31,6 @@ export const Login = () => {
 
       <Paper withBorder shadow='md' p={22} mt={30} radius='sm'>
         <TextInput
-          label='Nome'
-          placeholder='Digite seu nome'
-          required
-          radius='sm'
-        />
-        <TextInput
           label='Email'
           placeholder='Digite seu email'
           required
@@ -50,19 +45,15 @@ export const Login = () => {
           radius='sm'
         />
 
-        <Group>
-          <Text  className={classes.Politic}>Ao continuar, você concorda com os Termos de Serviço e a Política de Privacidade da Note Plus.</Text>
-        </Group>
-
-        <Button className={classes.criar}>
-          Criar Conta
+        <Button className={classes.entrar} component={NavLink} to="/">
+          Entrar
         </Button>
-        
-        
+
+
         <Group className={classes.groupForgotPassword}>
-          <Text className={classes.forgotPassword}>Já possui conta?</Text>
-          <Anchor className={classes.forgotPassword} href='#'>
-            Entre
+          <Text className={classes.forgotPassword}>Não tem uma conta?</Text>
+          <Anchor className={classes.forgotPassword} href='#' component={NavLink} to="/Cadastro">
+            Crie uma aqui 
           </Anchor>
         </Group>
       </Paper>

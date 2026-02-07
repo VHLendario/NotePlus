@@ -1,13 +1,13 @@
 import '@mantine/core/styles.css';
 import { MantineProvider } from '@mantine/core';
 
-import { Login } from './Pages/Login/login';
-import { Home } from './Pages/Home/';
+import { Cursos } from './Pages/Cursos/';
+import { AppRoutes } from './AppRoutes';
 
 export const App = () => {
   return (
     <MantineProvider>
-      <Home />
+      <AppRoutes />
     </MantineProvider>
   );
 };
