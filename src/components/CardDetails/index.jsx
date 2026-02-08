@@ -1,62 +1,75 @@
 import {
-    Button,
     Stack,
     Group,
-    Anchor,
     Text,
     Box,
     Card,
-    Paper
+    Modal,
+    Button
 } from '@mantine/core';
-import  classes  from '../CardDetails/CardDetails.module.css'
-import { NavLink } from 'react-router-dom';
+import classes from './CardDetails.module.css';
+import { useDisclosure } from '@mantine/hooks';
 
-export const CardDetails = () => {
+// Recebemos "dados" como prop
+export const CardDetails = ({ dados }) => {
+    const [opened, { open, close }] = useDisclosure(false);
+    if (!dados) return null;
+
     return (
-        <Card shadow="sm" padding={0} style={{ marginTop: 20 }} withBorder>
-            <Box bg="#3D4474" p="sm" w={'100%'}>
-                <Group justify="center">
-                    <Text align="center" c="white" fw={700} size="md" >
-                        COTA AC
-                    </Text>
-                </Group>
-            </Box>
-
-            <Stack p="md" gap={0}>
-                <Text fw={500}>
-                    AC: Ampla Concorrência
+        <>
+            {/* Botão para visualizar detalhes da cota */}
+            <Modal
+                opened={opened}
+                onClose={close}
+                title={`Entender Modalidade: ${dados.modalidade}`}
+                centered
+                overlayProps={{
+                    backgroundOpacity: 0.55,
+                    blur: 3,
+                }}
+            >
+                <Text size="sm">
+                    {dados.descricao_cota}
                 </Text>
+            </Modal>
 
-                <Box mt="sm">
-                    <Text c="dimmed" size="sm">
-                        Vagas
-                    </Text>
-
-                    <Text size="xl" fw={700} c="#3D4474">
-                        24
-                    </Text>
-                </Box>
-                <Box mt="sm">
-                    <Text c="dimmed" size="sm">
-                        Inscritos
-                    </Text>
-
-                    <Text size="xl" fw={700} c="#3D4474">
-                        527
-                    </Text>
+            <Card w={215} shadow="sm" padding={0} style={{ marginTop: 20 }} withBorder>
+                <Box bg="#3D4474" p="sm" w={'100%'}>
+                    <Group justify="center">
+                        <Text align="center" c="white" fw={700} size="lg" >
+                            COTA {dados.modalidade}
+                        </Text>
+                    </Group>
                 </Box>
 
-                <Box mt="sm" className={classes.Resultado}>
-                    <Text c="dimmed" size="xl">
-                        Corte:
-                    </Text>
+                <Stack p="md" gap="xs">
+                    <Button
+                        variant="subtle"
+                        color="blue"
+                        size="compact-xs"
+                        onClick={open}/* Abre o modal ao clicar  */
+                        fullWidth
+                    >
+                        Entender Modalidade
+                    </Button>
 
-                    <Text size="xl" fw={700} c="#3D4474">
-                        528.48
-                    </Text>
-                </Box>
+                    <Group justify="space-between" mt="sm">
+                        <Box>
+                            <Text c="dimmed" size="md">Vagas</Text>
+                            <Text size="lg" fw={700} c="#3D4474">{dados.vagas}</Text>
+                        </Box>
+                        <Box>
+                            <Text c="dimmed" size="md">Inscritos</Text>
+                            <Text size="lg" fw={700} c="#3D4474">{dados.inscritos}</Text>
+                        </Box>
+                    </Group>
 
-            </Stack>
-        </Card>
-    )
-}
+                    <Box mt="sm" className={classes.Resultado} display="flex" style={{ alignItems: 'baseline', gap: '5px' }}>
+                        <Text c="dimmed" size="lg">Corte:</Text>
+                        <Text size="xl" fw={700} c="#3D4474">{dados.nota_corte}</Text>
+                    </Box>
+                </Stack>
+            </Card>
+        </>
+    );
+};

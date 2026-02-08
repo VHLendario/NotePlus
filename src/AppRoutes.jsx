@@ -1,56 +1,44 @@
-import '@mantine/core/styles.css';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { NavLink } from "react-router-dom";
 
-
-
-/* import { isAuthenticated } from './services/api'; */
-import { Login } from './pages/Login';
-import { Cadastro } from './pages/Cadastro';
-import { Home } from './pages/Home';
-import { Cursos } from './Pages/Cursos';
+// Layout e Paginas
 import { MainLayout } from './layout/index';
+import { Login } from './Pages/Login';
+import { Cadastro } from './Pages/Cadastro';
+import { Home } from './Pages/Home';
+import { Cursos } from './Pages/Cursos';
 import { Faculdades } from './Pages/Faculdades';
 import { Detalhes } from './Pages/Detalhes';
 
-/* const PrivateRoute = () => {
-  return isAuthenticated() ? <Outlet /> : <Navigate to="/" />;
-}; */
+import { Navigate, Outlet } from 'react-router-dom';
+export const PrivateRoute = () => {
+  const isAuthenticated = localStorage.getItem('@NotePlus:token');
 
-/* export const AppRoutes = () => {
-  return (
-    <MantineProvider theme={theme}>
-      <Notifications />
-      <Router>
-        <Routes>
-          <Route index element={<Login />} />
-          <Route element={<PrivateRoute />}>
-            <Route path="/home" element={<Home />} />
-          </Route>
-        </Routes>
-      </Router>
-    </MantineProvider>
-  );
-}; */
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
+};
 
 export const AppRoutes = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Rota com layout */}
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/cursos" element={<Cursos />} />
-          <Route path="/Faculdades" element={<Faculdades />} />
-          <Route path="/Detalhes" element={<Detalhes />} />
-        </Route>
+    <MantineProvider>
+      <Notifications />
+      <BrowserRouter>
+        <Routes>
+          {/* COM SIDEBAR, ROTAS PRIVADAS */}
+          <Route element={<PrivateRoute />}>
+            <Route element={<MainLayout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/cursos" element={<Cursos />} />
+              <Route path="/faculdades" element={<Faculdades />} />
+              <Route path="/detalhes" element={<Detalhes />} />
+            </Route>
+          </Route>
 
-        {/* Rota sem layout */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/cadastro" element={<Cadastro />} />
-      </Routes>
-    </BrowserRouter>
-  )
-}
+          {/* SEM SIDEBAR, ROTAS PÚBLICAS */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/cadastro" element={<Cadastro />} />
+        </Routes>
+      </BrowserRouter>
+    </MantineProvider>
+  );
+};

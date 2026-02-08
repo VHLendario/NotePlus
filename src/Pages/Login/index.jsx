@@ -11,9 +11,24 @@ import {
 } from '@mantine/core';
 import classes from './login.module.css';
 import goo from '../../assets/img01.png'
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useState } from 'react'
 
 export const Login = () => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
+  const handleEntrar = () => {
+    setLoading(true);
+
+    // SIMULANDO O LOGIN
+    // Depois, fazer o api.post('/login')
+    setTimeout(() => {
+      localStorage.setItem('@NotePlus:token', 'seu-token-aqui');
+      navigate('/');
+      setLoading(false);
+    }, 1000); 
+  };
   return (
     <Container size={420} my={80} justify='center'>
       <Group justify='center'>
@@ -45,15 +60,21 @@ export const Login = () => {
           radius='sm'
         />
 
-        <Button className={classes.entrar} component={NavLink} to="/">
+        <Button 
+          className={classes.entrar} 
+          onClick={handleEntrar}
+          loading={loading}
+          fullWidth // Adicionei para ocupar a largura do Paper
+          mt="xl"
+        >
           Entrar
         </Button>
 
 
         <Group className={classes.groupForgotPassword}>
           <Text className={classes.forgotPassword}>Não tem uma conta?</Text>
-          <Anchor className={classes.forgotPassword} href='#' component={NavLink} to="/Cadastro">
-            Crie uma aqui 
+          <Anchor className={classes.forgotPassword} underline='never' href='#' component={NavLink} to="/Cadastro">
+            Crie uma aqui
           </Anchor>
         </Group>
       </Paper>

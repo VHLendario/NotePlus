@@ -4,10 +4,7 @@ import {
   TextInput,
   Group,
   Text,
-  Card,
   SimpleGrid,
-  Box,
-  Stack,
 } from '@mantine/core';
 import classes from '../Faculdades/Faculdades.module.css';
 import { CardCurso } from '../../components/Card'

@@ -15,16 +15,3 @@ export const MainLayout = () => {
     </div>
   )
 }
-
-/* export const MainLayout = ({ children }) => {
-  return (
-    <div className={classes.layout}>
-      <NavBar />
-
-      <main className={classes.content}>
-        {children}
-      </main>
-    </div>
-  );
-};
- */

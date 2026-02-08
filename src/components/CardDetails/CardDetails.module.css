@@ -3,5 +3,8 @@
     flex-direction: row;
     align-items: center;
     gap: 5px;
+    padding: 3px;
     justify-content: center;
+    border: 2px outset #3d447427;
+    border-radius: 10px;
 }

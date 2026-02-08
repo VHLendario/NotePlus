@@ -70,33 +70,3 @@ export const Cadastro = () => {
     </Container>
   );
 };
-
-
-/* 
-
-<Paper className={classes.paper} shadow="md" radius="md" p="xl" withBorder>
-        <Box sx={{ maxWidth: 300 }} mx="auto">
-          <Image
-            src="https://example.com/logo.png"
-            alt="Logo"
-            width={100}
-            height={100}
-            mx="auto"
-            mb="md"
-          />
-          <TextInput label="Email" placeholder="
-Enter your email" required mb="sm" />
-          <PasswordInput label="Password" placeholder="Enter your password" required mb="lg" />
-          <Button fullWidth mb="md">Login</Button>
-          <Group position="apart" mt="md">
-            <Anchor href="#" size="sm">
-              Forgot password?
-            </Anchor>
-            <Anchor href="#" size="sm">
-              Don't have an account? Sign up
-            </Anchor>
-          </Group>
-        </Box>
-      </Paper>
-
-*/

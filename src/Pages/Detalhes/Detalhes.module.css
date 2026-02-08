@@ -1,21 +1,43 @@
 .maincontainer {
-    gap: 200px;
     margin-top: 20px;
     margin-bottom: 20px;
     width: 100%;
-    margin-left: 35px;
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 20px;
+    margin-left: 47px;
 }
 
+/* .mainContainer {
+    width: 100%;
+    min-height: 100vh;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    margin-left: 35px;
+}
+ */
+
+ /* .maincontainer {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 20px;
+    margin-left: 47px;
+} */
+
 .header {
-    display: flex;
-    justify-content:left;
-    align-items: center;
-    gap: 20px;
+    width: 100%;
     
 }
 
 .dashboard {
-    display: flex;
     margin-top: 20px;
-    gap: 20px;
+    min-height: 150px; /* Garante que o card de info não "encolha" sem dados */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }

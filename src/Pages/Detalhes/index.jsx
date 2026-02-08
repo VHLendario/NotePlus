@@ -5,103 +5,95 @@ import {
     Text,
     Box,
     Paper,
-    Anchor,
-    NativeSelect, 
+    NativeSelect,
     SimpleGrid,
-    
+    Stack
 } from '@mantine/core';
 import classes from '../Detalhes/Detalhes.module.css'
-import { NavLink } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import api from '../../services/api';
 import { CardDetails } from '../../components/CardDetails'
 
-
 export const Detalhes = () => {
-    
+    const location = useLocation();
+    const [notas, setNotas] = useState([]);
+    const [infoCurso, setInfoCurso] = useState(null);
+    const [ano, setAno] = useState('2025');
+    const queryParams = new URLSearchParams(location.search);
+    const cursoNome = queryParams.get('curso');
+    const uniSigla = queryParams.get('uni');
+
+    useEffect(() => {
+        const fetchDetalhes = async () => {
+            try {
+                const response = await api.get('/pesquisar', {
+                    params: {
+                        curso: cursoNome,
+                        universidade: uniSigla,
+                        ano: ano
+                    }
+                });
+                setNotas(response.data);
+                if (response.data.length > 0) {
+                    setInfoCurso(response.data[0]); // Pega o primeiro para preencher o cabeçalho
+                }
+            } catch (error) {
+                console.error("Erro ao buscar detalhes", error);
+            }
+        };
+
+        if (cursoNome) fetchDetalhes();
+    }, [cursoNome, uniSigla, ano]);
+
+    const navigate = useNavigate();
 
     return (
-        /* Nessa página vou separar em: header interativo, um campus de informações e o campus que vai aparecer as notas de corte de acordo com o ano escolhido por uma caixinha de seleção. */
+        <Container className={classes.maincontainer}>
+            {/* Aqui é o HEADER */}
+            <Box className={classes.header} mt={30}>
+                <Group justify="space-between" align="flex-start">
+                    <Stack gap={0}>
+                        <Button onClick={() => navigate(-1)} w={100} mb="md">Voltar</Button>
+                        <Text size="xl" fw={700}>{cursoNome || "Carregando..."}</Text>
+                        <Text size="md">Veja as notas de corte para cada modalidade.</Text>
+                    </Stack>
 
-        <Container className={classes.maincontainer} >
-            <Box className={classes.header} shadow="sm" padding="lg" radius="md" withBorder w={'100%'} >
-                <Button
-                    component={NavLink}
-                    to="/"
-                >
-                    Voltar
-                </Button>
-                <Group display={'inline'}>
-                    <Text size="xl" weight={700} mb="md">
-                        Ciência da Computação
-                    </Text>
-                    <Text size="md">
-                        Veja os detalhes do curso escolhido.
-                    </Text>
+                    {/* O SELECT DE ANO */}
+                    <NativeSelect w={150}
+                        label="Edição do SISU"
+                        description="Selecione o ano base"
+                        value={ano}
+                        onChange={(event) => setAno(event.currentTarget.value)}
+                        data={[
+                            { label: '2025 (Atual)', value: '2025' },
+                            { label: '2024 (Em breve)', value: '2024', disabled: true },
+                            { label: '2023 (Em breve)', value: '2023', disabled: true },
+                        ]}
+                    />
                 </Group>
             </Box>
-
-            <Paper className={classes.dashboard} shadow="sm" p="md">
-                <Group bg={'blue'} display={'contents'}>
-                    <Group>
-                        <Text fw={600}>
-                            Instituição:
-                        </Text>
-                        <Text>
-                            Universidade Federal do Ceará
-                        </Text>
-                    </Group>
-                    <Group>
-                        <Text fw={600}>
-                            Campus:
-                        </Text>
-                        <Text>
-                            Fortaleza (CE)
-                        </Text>
-                    </Group>
-                    <Group>
-                        <Text fw={600}>
-                            Grau:
-                        </Text>
-                        <Text>
-                            Bacharel
-                        </Text>
-                    </Group>
-                    <Group>
-                        <Text fw={600}>Vagas:</Text>
-
-                        <Text>
-                            50
-                        </Text>
-                    </Group>
-                    <Group>
-                        <Text fw={600}>
-                            Turno:
-                        </Text>
-                        <Text>
-                            Integral (Matutino/Vesperino)
-                        </Text>
-                    </Group>
-                </Group>
+            
+            {/* DASHBOARD do curso */}
+            <Paper className={classes.dashboard} shadow="sm" p="md" mt={20} withBorder>
+                <Stack>
+                    <Group><Text fw={600}>Instituição:</Text><Text>{infoCurso?.nome_universidade || uniSigla}</Text></Group>
+                    <Group><Text fw={600}>Campus:</Text><Text>{infoCurso?.campus} ({infoCurso?.cidade})</Text></Group>
+                    <Group><Text fw={600}>Grau:</Text><Text>{infoCurso?.grau || 'Bacharelado'}</Text></Group>
+                </Stack>
             </Paper>
 
             <Box mt={20}>
-                <Text size='xl'>
-                    Notas de Corte 2024
-                </Text>
-                <NativeSelect
-                    label="Selecione o ano" 
-                    data={['2024', '2023', '2022']} 
-                    w={110}
-                />
+                <Text size='xl' mb="md" fw={500}>Notas de Corte por Modalidade - SISU {ano}</Text>
+                <SimpleGrid cols={4} spacing="md" breakpoints={[{ maxWidth: 'sm', cols: 1 }]}>
+                    {notas.map((nota) => (
+                        <CardDetails key={nota.id_projeto} dados={nota} />
+                    ))}
+                </SimpleGrid>
+                {notas.length === 0 && (
+                    <Text ta="center" mt="xl" c="dimmed">Nenhuma nota encontrada para o ano {ano}.</Text>
+                )}
             </Box>
-
-            <SimpleGrid cols={4} spacing={4}>
-                <CardDetails/><CardDetails/><CardDetails/><CardDetails/>
-                <CardDetails/><CardDetails/><CardDetails/><CardDetails/>
-            </SimpleGrid>
-
         </Container>
-
-
-    )
+    );
 }

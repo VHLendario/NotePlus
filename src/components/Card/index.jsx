@@ -1,10 +1,6 @@
 import {
     Button,
-    Container,
     Stack,
-    PasswordInput,
-    TextInput,
-    Image,
     Group,
     Anchor,
     Text,
@@ -13,61 +9,73 @@ import {
 } from '@mantine/core';
 import { NavLink } from 'react-router-dom';
 
-export const CardCurso = () => {
+export const CardCurso = ({ dados }) => {
+    if (!dados) return null;
     return (
         <Card shadow="sm" padding={0} style={{ marginTop: 20 }} withBorder>
-            <Box bg="#3D4474" p="sm" w={'100%'}>
+            <Box
+                bg="#3D4474"
+                p="sm"
+                w={'100%'}
+                style={{
+                    height: '80px', // Altura fixa para o título não quebrar o layout
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}
+            >
                 <Group justify="space-between">
-                    {/* EU quero deixar o texto reto */}
                     <Text align="center" c="white" fw={700} size="md" >
-                        CIÊNCIA DA COMPUTAÇÃO
+                        {dados.curso}
                     </Text>
-
                 </Group>
             </Box>
 
-            <Stack p="sm" gap={0}>
+            <Stack p="sm" gap={0} style={{ flex: 1 }} justify="space-between">
                 <Text fw={500}>
-                    UFC - UNIVERSIDADE FEDERAL DO CEARÁ
+                    {dados.sigla_universidade} - {dados.nome_universidade}
                 </Text>
 
                 <Text fw={600} size="sm" c="#3D4474">
-                    CAMPUS DA UFC EM CRATEÚS (Fortaleza, CE)
+                    {dados.campus} ({dados.cidade}, CE)
                 </Text>
 
                 <Text c="dimmed">
-                    Integral - Bacharelado
+                    {dados.grau}
                 </Text>
 
                 <Box mt="sm">
                     <Text c="dimmed" size="sm">
-                        Total de Vagas
+                        Total de vagas
                     </Text>
 
                     <Text size="xl" fw={700} c="#3D4474">
-                        50
+                        {dados.vagas}
                     </Text>
                 </Box>
 
-                <Anchor component={NavLink} to="/Detalhes">
-                    <Button
-                    w={'100%'}
-                    variant="light"
-                    radius="xl"
-                    size="md"
-                    mt="sm"
-                    styles={{
-                        root: {
-                            boxShadow: "0px 4px 10px rgba(0,0,0,0.15)",
-                            fontWeight: 600
-                        }
-                    }}
+
+                <Anchor
+                    component={NavLink}
+                    to={`/Detalhes?curso=${encodeURIComponent(dados.curso)}&uni=${encodeURIComponent(dados.sigla_universidade)}`}
                 >
-                    Ver Curso
-                </Button>
+                    <Button
+                        w={'100%'}
+                        variant="light"
+                        radius="xl"
+                        size="md"
+                        mt="sm"
+                        styles={{
+                            root: {
+                                boxShadow: "0px 4px 10px rgba(0,0,0,0.15)",
+                                fontWeight: 600
+                            }
+                        }}
+                    >
+                        Ver Curso
+                    </Button>
                 </Anchor>
-                
             </Stack>
         </Card>
-    )
-}
+    );
+};
