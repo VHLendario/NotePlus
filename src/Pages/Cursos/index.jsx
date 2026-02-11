@@ -21,7 +21,7 @@ export const Cursos = () => {
   const [resultados, setResultados] = useState(JSON.parse(sessionStorage.getItem('lastResults')) || []);
   const [sugestoes, setSugestoes] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  
   useEffect(() => {
     const buscarSugestoes = async () => {
       if (pesquisa.length < 1) {
@@ -53,6 +53,7 @@ export const Cursos = () => {
   }, [location.pathname]);
 
   const handleSearch = async () => {
+    
     if (!pesquisa.trim()) return;
 
     setLoading(true);
@@ -63,17 +64,14 @@ export const Cursos = () => {
         }
       });
 
-      // --- LÓGICA DE AGRUPAMENTO E SOMA DE VAGAS PARA SABER O TOTAL, JÁ QUE NO BANCO É SEPARADA ---
       const mapaAgrupado = {};
 
       response.data.forEach(item => {
         const chave = `${item.curso}-${item.sigla_universidade}`;
 
         if (!mapaAgrupado[chave]) {
-          // Se é a primeira vez que vemos esse curso nessa uni, criamos o objeto
           mapaAgrupado[chave] = { ...item };
         } else {
-          // Se já existe, somamos as vagas ao total que já tínhamos
           mapaAgrupado[chave].vagas += item.vagas;
         }
       });
@@ -103,7 +101,7 @@ export const Cursos = () => {
 
   return (
     <Container className={classes.mainContainer}>
-      <Group className={classes.Header} mt={19}>
+      <Group className={classes.Header} mt={20}>
         <Box>
           <Text fw={700} size="24px" style={{ lineHeight: 1 }}>Cursos</Text>
           <Text c="dimmed" size="sm" mt={5}>Acompanhe as notas de corte do curso que você deseja</Text>

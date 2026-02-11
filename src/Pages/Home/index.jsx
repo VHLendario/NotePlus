@@ -12,9 +12,19 @@ import {
 } from '@mantine/core';
 import classes from '../Home/home.module.css';
 import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { CardCurso } from '../../components/Card';
 import api from '../../services/api';
+
+const estadosMap = {
+  'AC': 'ACRE', 'AL': 'ALAGOAS', 'AM': 'AMAZONAS', 'AP': 'AMAPÁ', 'BA': 'BAHIA',
+  'CE': 'CEARÁ', 'DF': 'DISTRITO FEDERAL', 'ES': 'ESPÍRITO SANTO', 'GO': 'GOIÁS',
+  'MA': 'MARANHÃO', 'MG': 'MINAS GERAIS', 'MS': 'MATO GROSSO DO SUL', 'MT': 'MATO GROSSO',
+  'PA': 'PARÁ', 'PB': 'PARAÍBA', 'PE': 'PERNAMBUCO', 'PI': 'PIAUÍ', 'PR': 'PARANÁ',
+  'RJ': 'RIO DE JANEIRO', 'RN': 'RIO GRANDE DO NORTE', 'RO': 'RONDÔNIA', 'RR': 'RORAIMA',
+  'RS': 'RIO GRANDE DO SUL', 'SC': 'SANTA CATARINA', 'SE': 'SERGIPE', 'SP': 'SÃO PAULO',
+  'TO': 'TOCANTINS'
+};
 
 export const Home = () => {
   const [pesquisa, setPesquisa] = useState(sessionStorage.getItem('home_lastSearch') || '');
@@ -23,11 +33,17 @@ export const Home = () => {
   const [loading, setLoading] = useState(false);
   const location = useLocation();
 
+  const agruparPorEstado = (dados) => {
+    return dados.reduce((acc, item) => {
+      const uf = item.uf_campus || 'Outros';
+      if (!acc[uf]) acc[uf] = [];
+      acc[uf].push(item);
+      return acc;
+    }, {});
+  };
+
   useEffect(() => {
-    // Sempre que a URL mudar, verificamos:
-    // Se eu não estou na Home ('/') E não estou nos Detalhes...
     if (location.pathname !== '/' && !location.pathname.includes('/detalhes')) {
-      // ...então eu mudei de aba no menu lateral, pode apagar tudo!
       sessionStorage.removeItem('home_lastSearch');
       sessionStorage.removeItem('home_lastResults');
     }
@@ -35,72 +51,59 @@ export const Home = () => {
 
   useEffect(() => {
     const buscarSugestoes = async () => {
-      // Só pesquisa se tiver mais de 1 letras
       if (pesquisa.length < 1) {
         setSugestoes([]);
         return;
       }
-
       try {
-        // Chamando a rota nova 
-        const response = await api.get('/sugestoes', {
-          params: { curso: pesquisa }
-        });
-
-        setSugestoes(response.data); // Já recebe a lista de strings ['CIÊNCIA...', 'DIREITO']
+        // Busca global: tenta curso e universidade
+        const [resCurso, resUni] = await Promise.all([
+          api.get('/sugestoes', { params: { curso: pesquisa } }),
+          api.get('/sugestoes', { params: { universidade: pesquisa } })
+        ]);
+        const unificado = [...new Set([...resCurso.data, ...resUni.data])];
+        setSugestoes(unificado);
       } catch (error) {
         console.error("Erro ao buscar sugestões", error);
       }
     };
 
-    const delayDebounceFn = setTimeout(() => {
-      buscarSugestoes();
-    }, 300);
-
+    const delayDebounceFn = setTimeout(() => buscarSugestoes(), 300);
     return () => clearTimeout(delayDebounceFn);
   }, [pesquisa]);
 
-  const handleSearch = async () => {
-
-    if (!pesquisa.trim()) return;
+  const handleSearch = async (termoManual) => {
+    const termoFinal = (typeof termoManual === 'string' ? termoManual : pesquisa).trim();
+    if (!termoFinal) return;
 
     setLoading(true);
     try {
       const response = await api.get('/pesquisar', {
         params: {
-          curso: pesquisa.trim().toUpperCase()
+          curso: termoFinal.toUpperCase(),
+          global: true // <--- ADICIONE ISSO AQUI
         }
       });
 
-      // --- LÓGICA DE AGRUPAMENTO E SOMA DE VAGAS PARA SABER O TOTAL, JÁ QUE NO BANCO É SEPARADA ---
       const mapaAgrupado = {};
-
       response.data.forEach(item => {
         const chave = `${item.curso}-${item.sigla_universidade}`;
-
-        if (!mapaAgrupado[chave]) {
-          // Se é a primeira vez que vemos esse curso nessa uni, criamos o objeto
-          mapaAgrupado[chave] = { ...item };
-        } else {
-          // Se já existe, somamos as vagas ao total que já tínhamos
-          mapaAgrupado[chave].vagas += item.vagas;
-        }
+        if (!mapaAgrupado[chave]) mapaAgrupado[chave] = { ...item };
+        else mapaAgrupado[chave].vagas += item.vagas;
       });
 
-      // Transformamos o objeto de volta para um Array para o Estado
-      const resultadosSomados = Object.values(mapaAgrupado);
-
-      setResultados(resultadosSomados);
-      sessionStorage.setItem('home_lastResults', JSON.stringify(resultadosSomados));
-      sessionStorage.setItem('home_lastSearch', pesquisa);
-
-      setResultados(resultadosSomados);
+      const final = Object.values(mapaAgrupado);
+      setResultados(final);
+      sessionStorage.setItem('home_lastResults', JSON.stringify(final));
+      sessionStorage.setItem('home_lastSearch', termoFinal);
     } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
     }
   };
+
+  const dadosAgrupados = agruparPorEstado(resultados);
 
   const handleClear = () => {
     setPesquisa('');
@@ -113,7 +116,7 @@ export const Home = () => {
   return (
     <Container className={classes.mainContainer}>
       <Box className={classes.header} justify='space-between' display='flex' align='center' mt={20}>
-        <Text className={classes.logo} fw={500} >Visão Geral - Crateús</Text>
+        <Text className={classes.logo} fw={700} >Visão Geral - Crateús</Text>
         <Group>
           <Button className={classes.headerButton} variant="outline">Mudar Tema</Button>
           <Button className={classes.headerButton} variant="outline">Notificações</Button>
@@ -157,7 +160,7 @@ export const Home = () => {
             filter={({ options }) => options}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             nothingFoundMessage="Nenhum curso sugerido"
-            // Adiciona o botão de X dentro do input se houver texto
+
             rightSectionPointerEvents="all"
             rightSection={
               pesquisa && (
@@ -172,7 +175,7 @@ export const Home = () => {
               )
             }
           />
-          <Button size='md' variant="filled" onClick={handleSearch}>Pesquisar</Button>
+          <Button size="md" onClick={() => handleSearch()}>Pesquisar</Button>
         </Group>
       </Box>
 
@@ -180,18 +183,28 @@ export const Home = () => {
       {loading ? (
         <Center mt={50}><Loader color="blue" /></Center>
       ) : (
-        <SimpleGrid cols={3} spacing="xs" mt={20}>
-          {resultados.length > 0 ? (
-            resultados.map((item) => (
-              <CardCurso
-                key={item.id_projeto}
-                dados={item}
-              />
+        <Box mt={30}>
+          {Object.keys(dadosAgrupados).length > 0 ? (
+            Object.entries(dadosAgrupados).map(([sigla, itens]) => (
+              <Box key={sigla} mb={50}>
+                <Group mb="lg" gap="xs">
+                  <Box bg="blue.7" px={8} py={2} style={{ borderRadius: 4 }}>
+                    <Text c="white" fw={800}>{sigla}</Text>
+                  </Box>
+                  <Text fw={700} size="xl">- {estadosMap[sigla] || 'ESTADO'}</Text>
+                </Group>
+
+                <SimpleGrid cols={3} spacing="lg">
+                  {itens.map((item) => (
+                    <CardCurso key={item.id_projeto} dados={item} />
+                  ))}
+                </SimpleGrid>
+              </Box>
             ))
           ) : (
-            <Text align="center" mt={20}></Text>
+            pesquisa && <Text ta="center" c="dimmed" mt={50}>Nenhum resultado encontrado.</Text>
           )}
-        </SimpleGrid>
+        </Box>
       )}
     </Container>
   );

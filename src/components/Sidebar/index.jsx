@@ -87,12 +87,12 @@ export const Sidebar = () => {
                 ta="center"
                 className={classes.propagandaTitle}
               >
-                Versão PRO sem Anúncios
+                Versão Completa
               </Text>
             </Stack>
 
             <Text size="xs" ta="center" c="dimmed" lh={1.4}>
-              Sem anúncios, indicações personalizadas e algoritmo melhorado.
+              Acesso à estatistícas, previsões, comparações, perfil, notificações e muito mais
             </Text>
 
             <Button
@@ -101,7 +101,7 @@ export const Sidebar = () => {
               radius="md"
               size="md"
             >
-              Teste Grátis
+              Criar Conta
             </Button>
           </Stack>
 
