@@ -7,7 +7,7 @@ import {
   Card,
   Group
 } from '@mantine/core';
-import { IconHome, IconBook, IconSchool, IconLogout } from '@tabler/icons-react';
+import { IconHome, IconBook, IconSchool, IconLogout, IconUser } from '@tabler/icons-react';
 
 import { NavLink } from 'react-router-dom';
 import classes from './Sidebar.module.css';
@@ -60,6 +60,18 @@ export const Sidebar = () => {
               <Group gap="xs">
                 <IconSchool size={20} stroke={1.5} />
                 <Text>Faculdades</Text>
+              </Group>
+            </Anchor>
+            
+            <Anchor
+              component={NavLink}
+              to="/perfil"
+              className={classes.link}
+              underline="never"
+            >
+              <Group gap="xs">
+                <IconUser size={20} stroke={1.5} />
+                <Text>Perfil</Text>
               </Group>
             </Anchor>
 

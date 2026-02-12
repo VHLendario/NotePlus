@@ -10,6 +10,7 @@ import { Home } from './Pages/Home';
 import { Cursos } from './Pages/Cursos';
 import { Faculdades } from './Pages/Faculdades';
 import { Detalhes } from './Pages/Detalhes';
+import { Perfil } from './Pages/Perfil'
 
 import { Navigate, Outlet } from 'react-router-dom';
 export const PrivateRoute = () => {
@@ -31,6 +32,7 @@ export const AppRoutes = () => {
               <Route path="/cursos" element={<Cursos />} />
               <Route path="/faculdades" element={<Faculdades />} />
               <Route path="/detalhes" element={<Detalhes />} />
+              <Route path='/perfil' element={<Perfil/>}/>
             </Route>
           </Route>
 
