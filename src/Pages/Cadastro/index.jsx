@@ -4,69 +4,131 @@ import {
   Paper,
   PasswordInput,
   TextInput,
-  Image,
   Group,
   Anchor,
   Text,
 } from '@mantine/core';
 import classes from './Cadastro.module.css';
-import goo from '../../assets/img01.png'
 import { NavLink } from "react-router-dom";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { notifications } from '@mantine/notifications';
 
 export const Cadastro = () => {
+  const navigate = useNavigate();
+  const [nome, setNome] = useState('');
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+
+  const [erros, setErros] = useState({ email: '', senha: '', nome: '' });
+  const [loading, setLoading] = useState(false);
+
+  const validar = () => {
+    let novoErros = { email: '', senha: '', nome: '' };
+    let isValid = true;
+
+    if (nome.trim().length < 3) {
+      novoErros.nome = 'Digite seu nome completo';
+      isValid = false;
+    }
+
+    const emailRegex = /@gmail\.com$|@outlook\.com$/;
+    if (!emailRegex.test(email.toLowerCase())) {
+      novoErros.email = 'Use um e-mail @gmail.com ou @outlook.com';
+      isValid = false;
+    }
+
+    if (senha.length < 6) {
+      novoErros.senha = 'A senha deve ter no mínimo 6 caracteres';
+      isValid = false;
+    }
+
+    setErros(novoErros);
+    return isValid;
+  };
+
+  const handleCriarConta = async (e) => {
+    e.preventDefault();
+
+    if (!validar()) return;
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:3333/usuarios', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome, email, senha }),
+      });
+
+      const resultado = await response.json();
+
+      if (!response.ok) throw new Error(resultado.error || 'Erro ao cadastrar');
+
+      alert('Conta criada com sucesso!');
+      navigate('/login');
+    } catch (error) {
+      alert('Erro: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Container size={420} my={80} justify='center'>
       <Group justify='center'>
         <Text className={classes.logo}>NotePlus+</Text>
       </Group>
 
-      <Group>
-        <Button fullWidth mt='sm' radius='xl' color='#f6f7f8' >
+      <form onSubmit={handleCriarConta}>
+        <Paper withBorder shadow='md' p={22} mt={30} radius='sm'>
+          <TextInput
+            label='Nome'
+            placeholder='Seu nome'
+            required
+            value={nome}
+            onChange={(e) => setNome(e.currentTarget.value)}
+            error={erros.nome}
+          />
+          <TextInput
+            label='Email'
+            placeholder='exemplo@gmail.com'
+            required
+            mt='md'
+            value={email}
+            onChange={(e) => setEmail(e.currentTarget.value)}
+            error={erros.email} 
+          />
+          <PasswordInput
+            label='Senha'
+            placeholder='No mínimo 6 caracteres'
+            required
+            mt='md'
+            value={senha}
+            onChange={(e) => setSenha(e.currentTarget.value)}
+            error={erros.senha}
+          />
+
           <Group>
-            <Image src={goo} alt='goo' className={classes.goo} />
-            <Text size='sm' c='#121212 '>Entrar com o Google</Text>
+            <Text className={classes.Politic}>Ao continuar, você concorda com os Termos de Serviço e a Política de Privacidade da Note Plus.</Text>
           </Group>
-        </Button>
-      </Group>
 
-      <Paper withBorder shadow='md' p={22} mt={30} radius='sm'>
-        <TextInput
-          label='Nome'
-          placeholder='Digite seu nome'
-          required
-          radius='sm'
-        />
-        <TextInput
-          label='Email'
-          placeholder='Digite seu email'
-          required
-          mt='md'
-          radius='sm'
-        />
-        <PasswordInput
-          label='Senha'
-          placeholder='6 ou mais caracteres'
-          required
-          mt='md'
-          radius='sm'
-        />
+          <Button 
+            className={classes.criar} 
+            fullWidth 
+            type="submit" 
+            loading={loading}
+          >
+            Criar Conta
+          </Button>
 
-        <Group>
-          <Text  className={classes.Politic}>Ao continuar, você concorda com os Termos de Serviço e a Política de Privacidade da Note Plus.</Text>
-        </Group>
-
-        <Button className={classes.criar} component={NavLink} to="/">
-          Criar Conta
-        </Button>
-        
-        
-        <Group className={classes.groupForgotPassword}>
-          <Text className={classes.forgotPassword}>Já possui conta?</Text>
-          <Anchor className={classes.forgotPassword} href='#' component={NavLink} to="/Login">
-            Entre
-          </Anchor>
-        </Group>
-      </Paper>
+          <Group className={classes.groupForgotPassword}>
+            <Text className={classes.forgotPassword}>Já possui conta?</Text>
+            <Anchor className={classes.forgotPassword} href='#' component={NavLink} to="/Login">
+              Entre
+            </Anchor>
+          </Group>
+        </Paper>
+      </form>
     </Container>
   );
 };

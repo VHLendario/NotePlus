@@ -8,13 +8,15 @@ import {
   Box,
   SimpleGrid,
   Loader,
-  Center
+  Center,
+  Modal
 } from '@mantine/core';
 import classes from '../Home/home.module.css';
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { CardCurso } from '../../components/Card';
 import api from '../../services/api';
+import { useDisclosure } from '@mantine/hooks';
 
 const estadosMap = {
   'AC': 'ACRE', 'AL': 'ALAGOAS', 'AM': 'AMAZONAS', 'AP': 'AMAPÁ', 'BA': 'BAHIA',
@@ -31,7 +33,32 @@ export const Home = () => {
   const [resultados, setResultados] = useState(JSON.parse(sessionStorage.getItem('home_lastResults')) || []);
   const [sugestoes, setSugestoes] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingStats, setLoadingStats] = useState(true)
   const location = useLocation();
+
+  const [opened, { open, close }] = useDisclosure(false);
+
+  const [stats, setStats] = useState({
+    totalCursos: 0,
+    totalFaculdades: 0,
+    mediaCursos: 0,
+    totalEstados: 0
+  });
+
+  useEffect(() => {
+    const carregarStats = async () => {
+      try {
+        const response = await api.get('/stats');
+        setStats(response.data);
+      } catch (error) {
+        console.error("Erro ao carregar dashboard", error);
+      } finally {
+        setLoadingStats(false);
+      }
+    };
+
+    carregarStats();
+  }, []);
 
   const agruparPorEstado = (dados) => {
     return dados.reduce((acc, item) => {
@@ -115,10 +142,24 @@ export const Home = () => {
 
   return (
     <Container className={classes.mainContainer}>
+      <Modal
+        opened={opened}
+        onClose={close}
+        title={`Mudar tema`}
+        centered
+        overlayProps={{
+          backgroundOpacity: 0.55,
+          blur: 3,
+        }}
+      >
+        <Text size="sm">
+          Em breve
+        </Text>
+      </Modal>
       <Box className={classes.header} justify='space-between' display='flex' align='center' mt={20}>
         <Text className={classes.logo} fw={700} >Visão Geral - Crateús</Text>
         <Group>
-          <Button className={classes.headerButton} variant="outline">Mudar Tema</Button>
+          <Button className={classes.headerButton} variant="outline" onClick={open}>Mudar Tema</Button>
           <Button className={classes.headerButton} variant="outline">Notificações</Button>
         </Group>
       </Box>
@@ -126,23 +167,23 @@ export const Home = () => {
       {/* DASHBOARD AINDA NÃO FUNCIONAL */}
       <Paper className={classes.dashboard} shadow="sm" p="md">
         <Group className={classes.card} position="apart">
-          <Text size='xl' fw={500}>120</Text>
+          <Text size='xl' fw={500}>{stats.totalCursos}</Text>
           <Text >Cursos Disponíveis</Text>
         </Group>
 
         <Group className={classes.card} position="apart">
-          <Text size='xl' fw={500}>45</Text>
-          <Text >Cursos Pesquisados</Text>
-        </Group>
-
-        <Group className={classes.card} position="apart">
-          <Text size='xl' fw={500}>20</Text>
+          <Text size='xl' fw={500}>{stats.mediaCursos}</Text>
           <Text >Cursos por Faculdade</Text>
         </Group>
 
         <Group className={classes.card} position="apart">
-          <Text size='xl' fw={500}>8</Text>
+          <Text size='xl' fw={500}>{stats.totalFaculdades}</Text>
           <Text >Faculdades Públicas</Text>
+        </Group>
+
+        <Group className={classes.card} position="apart">
+          <Text size='xl' fw={500}>{stats.totalEstados}</Text>
+          <Text >Total de Estados cadastrados</Text>
         </Group>
       </Paper>
 

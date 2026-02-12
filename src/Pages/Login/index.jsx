@@ -13,35 +13,49 @@ import classes from './login.module.css';
 import goo from '../../assets/img01.png'
 import { NavLink, useNavigate } from "react-router-dom";
 import { useState } from 'react'
+import api from '../../services/api'; // Importe sua configuração do axios
 
 export const Login = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
-  const handleEntrar = () => {
+  // 1. Estados para capturar o que o usuário digita
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+
+  const handleEntrar = async () => {
+    // Validação básica
+    if (!email || !senha) {
+      alert("Preencha todos os campos!");
+      return;
+    }
+
     setLoading(true);
 
-    // SIMULANDO O LOGIN
-    // Depois, fazer o api.post('/login')
-    setTimeout(() => {
-      localStorage.setItem('@NotePlus:token', 'seu-token-aqui');
+    try {
+      // 2. Fazendo a chamada real para o Back
+      const response = await api.post('/login', { email, senha });
+
+      // 3. Salvando os dados que o seu AuthController retorna
+      // (token e o objeto user com id, nome, etc)
+      localStorage.setItem('@NotePlus:token', response.data.token);
+      localStorage.setItem('@NotePlus:user', JSON.stringify(response.data.user));
+
+      // 4. Se deu tudo certo, vai para a Home
       navigate('/');
+    } catch (err) {
+      // Pega a mensagem de erro vinda do backend (ex: "E-mail ou senha inválidos")
+      const mensagem = err.response?.data?.error || "Erro ao tentar logar.";
+      alert(mensagem);
+    } finally {
       setLoading(false);
-    }, 1000); 
+    }
   };
+
   return (
     <Container size={420} my={80} justify='center'>
       <Group justify='center'>
         <Text className={classes.logo}>NotePlus+</Text>
-      </Group>
-
-      <Group>
-        <Button fullWidth mt='sm' radius='xl' color='#f6f7f8' >
-          <Group>
-            <Image src={goo} alt='goo' className={classes.goo} />
-            <Text size='sm' c='#121212 '>Entrar com o Google</Text>
-          </Group>
-        </Button>
       </Group>
 
       <Paper withBorder shadow='md' p={22} mt={30} radius='sm'>
@@ -51,6 +65,9 @@ export const Login = () => {
           required
           mt='md'
           radius='sm'
+          // 5. Conectando o input ao estado
+          value={email}
+          onChange={(event) => setEmail(event.currentTarget.value)}
         />
         <PasswordInput
           label='Senha'
@@ -58,22 +75,24 @@ export const Login = () => {
           required
           mt='md'
           radius='sm'
+          // 6. Conectando o input ao estado
+          value={senha}
+          onChange={(event) => setSenha(event.currentTarget.value)}
         />
 
-        <Button 
-          className={classes.entrar} 
-          onClick={handleEntrar}
+        <Button
+          className={classes.entrar}
+          onClick={handleEntrar} // Chama a função que criamos acima
           loading={loading}
-          fullWidth // Adicionei para ocupar a largura do Paper
+          fullWidth
           mt="xl"
         >
           Entrar
         </Button>
 
-
         <Group className={classes.groupForgotPassword}>
           <Text className={classes.forgotPassword}>Não tem uma conta?</Text>
-          <Anchor className={classes.forgotPassword} underline='never' href='#' component={NavLink} to="/Cadastro">
+          <Anchor className={classes.forgotPassword} underline='never' component={NavLink} to="/Cadastro">
             Crie uma aqui
           </Anchor>
         </Group>

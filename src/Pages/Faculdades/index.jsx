@@ -156,6 +156,7 @@ export const Faculdades = () => {
             rightSection={
               pesquisa && (
                 <Text
+                  
                   style={{ cursor: 'pointer', opacity: 0.5 }}
                   onClick={handleClear}
                   size="xs"
